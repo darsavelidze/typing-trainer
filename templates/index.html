@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Fast Typing Trainer</title>
+    <style>
+            #trainer-app button {
+                font-size: 1em;
+                padding: 6px 18px;
+                border-radius: 6px;
+                margin-top: 12px;
+            }
+            h2 {
+                font-size: 2.2em;
+            }
+            p {
+                font-size: 1.3em;
+            }
+        #trainer-app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+    @font-face {
+        font-family: 'Williwaw';
+        src: url('/static/Williwaw-Book.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+    }
+    @font-face {
+        font-family: 'Sinistre';
+        src: url('/static/Sinistre-Regular.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+    }
+    html, body, input, button, table, th, td, #trainer-app, #trainer-app * {
+        font-family: 'Williwaw', Arial, sans-serif !important;
+    }
+    #timer {
+        font-family: 'Sinistre', monospace;
+        letter-spacing: 2px;
+    }
+    </style>
+</head>
+<body>
+    <h2>Fast Typing Trainer</h2>
+    {% if user %}
+        <p>Hello, {{ user.username }}!</p>
+        <form method="post" action="/logout">
+            <button type="submit">Log out</button>
+        </form>
+    {% else %}
+        <form method="post" action="/login">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Log in</button>
+        </form>
+        <a href="/register">Register</a>
+    {% endif %}
+    <hr>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 10px;">
+        <div id="stats"></div>
+        <div id="timer" style="min-width:70px; text-align:right;"></div>
+    </div>
+    <div id="trainer-app"></div>
+    <div id="stats-table" style="margin-top:30px;"></div>
+    <script>
+        window.isUserAuth = {{ 'true' if user else 'false' }};
+        {% if stats %}
+        window.initialStats = {{ stats|tojson }};
+        {% else %}
+        window.initialStats = null;
+        {% endif %}
+    </script>
+    <script src="/static/statistics.js"></script>
+    <script src="/static/typing-trainer.js"></script>
+    <script src="/static/main.js"></script>
+    <script>
+    // Инициализация статистики из БД
+    if (window.initialStats) {
+        try {
+            statsModule.wordStats = JSON.parse(window.initialStats);
+        } catch (e) {
+            statsModule.wordStats = {};
+        }
+    }
+    </script>
+</body>
+</html>
