@@ -1,0 +1,61 @@
+@startuml architecture
+!theme plain
+skinparam backgroundColor white
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+
+title Архитектура приложения Fast Typing Trainer
+
+package "Браузер (Client)" {
+    component "HTML/CSS\n(Templates)" as HTML
+    component "JavaScript\nModules" as JS {
+        [typing-trainer.js]
+        [statistics.js]
+        [main.js]
+    }
+}
+
+package "Flask Server" {
+    component "app.py" as APP {
+        [Routes]
+        [Authentication]
+        [Session Management]
+    }
+    component "Templates\n(Jinja2)" as TMPL
+}
+
+database "SQLite\n(users.db)" as DB {
+    frame "User" {
+        [id]
+        [username]
+        [password_hash]
+        [stats (JSON)]
+    }
+}
+
+cloud "HTTP/AJAX" as HTTP
+
+HTML -down-> JS : использует
+JS -right-> HTTP : AJAX запросы\n(save_stats)
+HTTP -down-> APP : POST /save_stats\nGET /\nGET /profile\nPOST /login\nPOST /logout\nGET/POST /register
+APP -right-> DB : SQLAlchemy\nORM
+APP -up-> TMPL : рендеринг
+TMPL -up-> HTTP : HTML
+HTTP -left-> HTML : страницы
+
+note right of JS
+  **Основные функции:**
+  • Тренажёр печати
+  • Адаптивный алгоритм
+  • Статистика (recent + full)
+  • Визуальная подсветка
+end note
+
+note left of DB
+  **Хранение:**
+  • Пользователи
+  • Хеши паролей
+  • JSON-статистика
+end note
+
+@enduml

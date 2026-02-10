@@ -1,0 +1,57 @@
+@startuml entity_diagram
+!theme plain
+skinparam backgroundColor white
+skinparam linetype ortho
+
+title Диаграмма сущностей (ER-диаграмма)
+
+entity "User" as user {
+    * id : INTEGER <<PK>>
+    --
+    * username : VARCHAR(80) <<UNIQUE>>
+    * password_hash : VARCHAR(128)
+    stats : TEXT
+}
+
+entity "WordStats" as wordstats <<JSON в User.stats>> {
+    * word : STRING <<KEY>>
+    --
+    times : ARRAY[FLOAT]
+    avg : FLOAT
+}
+
+entity "Session" as session <<Flask Session>> {
+    * session_id : STRING <<PK>>
+    --
+    user_id : INTEGER <<FK>>
+    _fresh : BOOLEAN
+}
+
+entity "Word" as word <<top200.txt>> {
+    * word : STRING <<PK>>
+    --
+    length : INTEGER
+}
+
+user ||--o{ wordstats : "хранит JSON"
+session }o--|| user : "связана с"
+wordstats }o..|| word : "ссылается на"
+
+note right of user
+  Таблица в SQLite БД
+  Хранит данные пользователя
+  и JSON-статистику
+end note
+
+note right of wordstats
+  JSON-объект внутри
+  поля User.stats
+  Ключ = слово
+end note
+
+note bottom of word
+  200 слов из файла
+  top200.txt
+end note
+
+@enduml

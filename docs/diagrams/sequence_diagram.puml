@@ -1,0 +1,49 @@
+@startuml sequence_diagram
+!theme plain
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+
+title Диаграмма последовательности: процесс тренировки
+
+actor "Пользователь" as User
+participant "Браузер\n(JavaScript)" as Browser
+participant "Flask\nСервер" as Server
+database "SQLite\nБД" as DB
+
+== Авторизация ==
+User -> Browser: Ввод логина/пароля
+Browser -> Server: POST /login
+Server -> DB: SELECT user
+DB --> Server: user data
+Server --> Browser: redirect /
+Browser --> User: Главная страница
+
+== Тренировка ==
+User -> Browser: Начало набора текста
+Browser -> Browser: startTest()\nЗапуск таймера
+
+loop Каждое слово
+    User -> Browser: Набор слова + пробел
+    Browser -> Browser: renderColoredWord()\nПодсветка символов
+    Browser -> Browser: statsModule.addWordTime()\nЗапись времени
+    Browser -> Browser: updateStatsDOM()\nОбновление карточек
+    Browser -> Server: POST /save_stats\n{stats: JSON}
+    Server -> DB: UPDATE user.stats
+    DB --> Server: OK
+    Server --> Browser: {ok: true}
+end
+
+== Завершение ==
+Browser -> Browser: Таймер = 0\nБлокировка ввода
+Browser --> User: Показ результата WPM
+
+== Просмотр профиля ==
+User -> Browser: Клик "Profile"
+Browser -> Server: GET /profile
+Server -> DB: SELECT user.stats
+DB --> Server: stats JSON
+Server -> Server: Расчёт статистики
+Server --> Browser: HTML с таблицей
+Browser --> User: Страница профиля
+
+@enduml

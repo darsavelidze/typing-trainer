@@ -2,15 +2,140 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <title>Register — Fast Typing Trainer</title>
+    <style>
+    @font-face {
+        font-family: 'Williwaw';
+        src: url('/static/Williwaw-Book.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+    }
+    html, body, input, button, a {
+        font-family: 'Williwaw', Arial, sans-serif !important;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 24px 32px;
+    }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    .header h1 {
+        font-size: 2.4em;
+        line-height: 1.1;
+    }
+    .header .subtitle {
+        font-size: 1em;
+        margin-top: 4px;
+        color: #555;
+    }
+    .divider {
+        border: none;
+        border-top: 1px solid #000;
+        margin: 16px 0 32px;
+    }
+    .form-box {
+        border: 1px solid #000;
+        border-radius: 10px;
+        padding: 40px 48px;
+        max-width: 480px;
+        margin: 0 auto;
+    }
+    .form-box h2 {
+        font-size: 1.6em;
+        margin-bottom: 24px;
+        text-align: center;
+    }
+    .form-group {
+        margin-bottom: 16px;
+    }
+    .form-group label {
+        display: block;
+        font-size: 0.9em;
+        color: #555;
+        margin-bottom: 6px;
+    }
+    .form-group input {
+        width: 100%;
+        font-size: 1.1em;
+        padding: 10px 14px;
+        border: 1px solid #999;
+        border-radius: 8px;
+        outline: none;
+    }
+    .form-group input:focus {
+        border-color: #000;
+    }
+    .btn-submit {
+        width: 100%;
+        font-size: 1.05em;
+        padding: 12px;
+        border: 1px solid #000;
+        border-radius: 8px;
+        background: #000;
+        color: #fff;
+        cursor: pointer;
+        margin-top: 8px;
+    }
+    .btn-submit:hover { background: #222; }
+    .form-footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 0.95em;
+        color: #555;
+    }
+    .form-footer a {
+        color: #000;
+        text-decoration: underline;
+    }
+    .form-footer a:hover { color: #444; }
+    .error-msg {
+        background: #fee;
+        border: 1px solid #faa;
+        border-radius: 6px;
+        padding: 10px 14px;
+        margin-bottom: 16px;
+        color: #c00;
+        font-size: 0.95em;
+        text-align: center;
+    }
+    </style>
 </head>
 <body>
-    <h2>Register</h2>
-    <form method="post">
-        <input type="text" name="username" placeholder="Username" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <button type="submit">Register</button>
-    </form>
-    <a href="/login">Log in</a>
+    <div class="header">
+        <div>
+            <h1>Fast Typing Trainer</h1>
+            <div class="subtitle">Create an account</div>
+        </div>
+        <div>
+            <a href="/" style="font-size:0.9em; padding:6px 16px; border:1px solid #000; border-radius:6px; background:#fff; color:#000; text-decoration:none; display:inline-block; transition:background 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fff'">← Back to Home</a>
+        </div>
+    </div>
+    <hr class="divider">
+
+    <div class="form-box">
+        <h2>Sign Up</h2>
+        {% if error %}
+        <div class="error-msg">{{ error }}</div>
+        {% endif %}
+        <form method="post">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="btn-submit">Sign Up</button>
+        </form>
+        <div class="form-footer">
+            Already have an account? <a href="/login">Log in</a>
+        </div>
+    </div>
 </body>
 </html>

@@ -2,11 +2,179 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Profile</title>
+    <title>Profile — Fast Typing Trainer</title>
+    <style>
+    @font-face {
+        font-family: 'Williwaw';
+        src: url('/static/Williwaw-Book.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+    }
+    html, body, input, button, a, table, th, td {
+        font-family: 'Williwaw', Arial, sans-serif !important;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 24px 32px;
+    }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    .header h1 {
+        font-size: 2.4em;
+        line-height: 1.1;
+    }
+    .header .greeting {
+        font-size: 1em;
+        margin-top: 4px;
+    }
+    .header-right {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 6px;
+    }
+    .header-btn {
+        font-size: 0.9em;
+        padding: 6px 16px;
+        border: 1px solid #000;
+        border-radius: 6px;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .header-btn:hover { background: #f0f0f0; }
+    .divider {
+        border: none;
+        border-top: 1px solid #000;
+        margin: 16px 0 28px;
+    }
+
+    /* Profile info cards */
+    .profile-cards {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 32px;
+    }
+    .profile-card {
+        flex: 1;
+        border: 1px solid #000;
+        border-radius: 8px;
+        padding: 14px 18px;
+    }
+    .profile-card .label {
+        font-size: 0.85em;
+        color: #555;
+    }
+    .profile-card .value {
+        font-size: 1.6em;
+        font-weight: bold;
+        margin-top: 2px;
+    }
+
+    /* Stats table */
+    .stats-section {
+        margin-top: 8px;
+    }
+    .stats-table-header {
+        background: #000;
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 8px 8px 0 0;
+        font-size: 1.1em;
+        font-weight: bold;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95em;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+        text-align: left;
+    }
+    th {
+        background: #f5f5f5;
+        font-weight: bold;
+    }
+    tr:nth-child(even) { background: #fafafa; }
+    .no-stats {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+        font-size: 1.1em;
+        border: 1px solid #ddd;
+        border-top: none;
+    }
+    </style>
 </head>
 <body>
-    <h2>User profile: {{ user.username }}</h2>
-    <p>Statistics: {{ user.stats }}</p>
-    <a href="/login">Log out</a>
+    <div class="header">
+        <div>
+            <h1>Fast Typing Trainer</h1>
+            <div class="greeting">Profile: {{ user.username }}</div>
+        </div>
+        <div class="header-right">
+            <a href="/" class="header-btn">← Trainer</a>
+            <form method="post" action="/logout" style="margin:0;">
+                <button type="submit" class="header-btn">↪ Log out</button>
+            </form>
+        </div>
+    </div>
+    <hr class="divider">
+
+    <!-- Summary cards -->
+    <div class="profile-cards">
+        <div class="profile-card">
+            <div class="label">Total Words</div>
+            <div class="value">{{ total_words }}</div>
+        </div>
+        <div class="profile-card">
+            <div class="label">Total Attempts</div>
+            <div class="value">{{ total_attempts }}</div>
+        </div>
+        <div class="profile-card">
+            <div class="label">Avg Time (sec)</div>
+            <div class="value">{{ avg_time }}</div>
+        </div>
+        <div class="profile-card">
+            <div class="label">Best Speed</div>
+            <div class="value">{{ best_speed }}</div>
+        </div>
+    </div>
+
+    <!-- Full stats table -->
+    <div class="stats-section">
+        <div class="stats-table-header">Complete Word Statistics</div>
+        {% if stats_rows %}
+        <table>
+            <tr>
+                <th>Word</th>
+                <th>Avg Time (sec)</th>
+                <th>Count</th>
+                <th>Change</th>
+                <th>Weighted Speed</th>
+            </tr>
+            {% for row in stats_rows %}
+            <tr>
+                <td>{{ row.word }}</td>
+                <td>{{ row.avg }}</td>
+                <td>{{ row.count }}</td>
+                <td style="text-align:center">{{ row.change|safe }}</td>
+                <td>{{ row.weighted }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <div class="no-stats">No data yet. Start training!</div>
+        {% endif %}
+    </div>
 </body>
 </html>

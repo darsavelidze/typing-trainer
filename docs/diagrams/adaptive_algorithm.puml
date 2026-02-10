@@ -1,0 +1,46 @@
+@startuml adaptive_algorithm
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+
+title Блок-схема адаптивного алгоритма подбора упражнений
+
+start
+
+:Вызов getWeakWords(allWords, count);
+
+if (Есть сохранённая\nстатистика?) then (нет)
+  :Вернуть все слова\nиз словаря;
+  stop
+else (да)
+  :Для каждого слова\nиз словаря;
+  
+  partition "Расчёт приоритета" {
+    if (Слово набиралось\nранее?) then (да)
+      :Получить lastTime\n(время последней попытки);
+      :Рассчитать взвешенную скорость:\n**score = word.length / lastTime**;
+    else (нет)
+      :Присвоить score = 0\n(максимальный приоритет);
+    endif
+    
+    :Добавить {word, score}\nв массив;
+  }
+  
+  :Сортировать массив\nпо score по возрастанию;
+  
+  note right
+    Слова с меньшим score
+    (медленные/непрактикованные)
+    окажутся первыми
+  end note
+  
+  :Взять первые N слов\nиз отсортированного списка;
+  
+  :Перемешать случайным образом;
+  
+  :Вернуть список слов\nдля тренировки;
+  
+  stop
+endif
+
+@enduml

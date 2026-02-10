@@ -1,18 +1,19 @@
 // Fast Typing Trainer Module
 // Minimal JS typing test logic, no styling
 
-const words = `about|above|add|after|again|air|all|almost|along|also|always|America|an|and|animal|another|answer|any|are|around|as|ask|at|away|back|be|because|been|before|began|begin|being|below|between|big|book|both|boy|but|by|call|came|can|car|carry|change|children|city|close|come|could|country|cut|day|did|different|do|does|don't|down|each|earth|eat|end|enough|even|every|example|eye|face|family|far|father|feet|few|find|first|follow|food|for|form|found|four|from|get|girl|give|go|good|got|great|group|grow|had|hand|hard|has|have|he|head|hear|help|her|here|high|him|his|home|house|how|idea|if|important|in|Indian|into|is|it|its|it's|just|keep|kind|know|land|large|last|later|learn|leave|left|let|letter|life|light|like|line|list|little|live|long|look|made|make|man|many|may|me|mean|men|might|mile|miss|more|most|mother|mountain|move|much|must|my|name|near|need|never|new|next|night|no|not|now|number|of|off|often|oil|old|on|once|one|only|open|or|other|our|out|over|own|page|paper|part|people|picture|place|plant|play|point|put|question|quick|quickly|quite|read|really|right|river|run|said|same|saw|say|school|sea|second|see|seem|sentence|set|she|should|show|side|small|so|some|something|sometimes|song|soon|sound|spell|start|state|still|stop|story|study|such|take|talk|tell|than|that|the|their|them|then|there|these|they|thing|think|this|those|thought|three|through|time|to|together|too|took|tree|try|turn|two|under|until|up|us|use|very|walk|want|was|watch|water|way|we|well|went|were|what|when|where|which|while|white|who|why|will|with|without|word|work|world|would|write|year|you|young|your`.split('|');
+const allWords = `about|above|add|after|again|air|all|almost|along|also|always|America|an|and|animal|another|answer|any|are|around|as|ask|at|away|back|be|because|been|before|began|begin|being|below|between|big|book|both|boy|but|by|call|came|can|car|carry|change|children|city|close|come|could|country|cut|day|did|different|do|does|don't|down|each|earth|eat|end|enough|even|every|example|eye|face|family|far|father|feet|few|find|first|follow|food|for|form|found|four|from|get|girl|give|go|good|got|great|group|grow|had|hand|hard|has|have|he|head|hear|help|her|here|high|him|his|home|house|how|idea|if|important|in|Indian|into|is|it|its|it's|just|keep|kind|know|land|large|last|later|learn|leave|left|let|letter|life|light|like|line|list|little|live|long|look|made|make|man|many|may|me|mean|men|might|mile|miss|more|most|mother|mountain|move|much|must|my|name|near|need|never|new|next|night|no|not|now|number|of|off|often|oil|old|on|once|one|only|open|or|other|our|out|over|own|page|paper|part|people|picture|place|plant|play|point|put|question|quick|quickly|quite|read|really|right|river|run|said|same|saw|say|school|sea|second|see|seem|sentence|set|she|should|show|side|small|so|some|something|sometimes|song|soon|sound|spell|start|state|still|stop|story|study|such|take|talk|tell|than|that|the|their|them|then|there|these|they|thing|think|this|those|thought|three|through|time|to|together|too|took|tree|try|turn|two|under|until|up|us|use|very|walk|want|was|watch|water|way|we|well|went|were|what|when|where|which|while|white|who|why|will|with|without|word|work|world|would|write|year|you|young|your`.split('|');
 
-
+let words = [...allWords];
 
 let current = 0;
 let correct = 0;
 let wrong = 0;
 let startTime = null;
 let finished = false;
+let currentMode = 'random';
 
 // Для отображения двух строк
-const wordsPerLine = 5;
+const wordsPerLine = 10;
 let lineOffset = 0; // сколько слов уже "ушло"
 
 // Для измерения времени печати слова
@@ -35,19 +36,9 @@ function showWord() {
 
 
 function renderColoredWord(inputVal) {
-  // Показываем две строки: первая строка — wordsPerLine, вторая — ещё wordsPerLine
   let html = '';
   let firstLine = [];
   let secondLine = [];
-    // Add border and rounded corners to the #word div
-    document.addEventListener('DOMContentLoaded', function() {
-        var wordDiv = document.getElementById('word');
-        if (wordDiv) {
-            wordDiv.style.border = '1px solid #000';
-            wordDiv.style.borderRadius = '8px';
-            wordDiv.style.padding = '4px 8px';
-        }
-    });
   for (let w = 0; w < wordsPerLine && (lineOffset + w) < words.length; w++) {
     firstLine.push(words[lineOffset + w]);
   }
@@ -91,18 +82,29 @@ function renderColoredWord(inputVal) {
 function updateStats() {
   const elapsed = (startTime ? ((Date.now() - startTime) / 1000) : 0) || 0;
   const wpm = Math.round((correct / elapsed) * 60) || 0;
-  document.getElementById('stats').textContent = `Word: ${current+1}/200 | Correct: ${correct} | Mistakes: ${wrong} | WPM: ${wpm}`;
-  // Таймер справа
+  // Update stat cards
+  const elWords = document.getElementById('stat-words');
+  const elCorrect = document.getElementById('stat-correct');
+  const elMistakes = document.getElementById('stat-mistakes');
+  const elWpm = document.getElementById('stat-wpm');
+  const elTimer = document.getElementById('timer-value');
+  if (elWords) elWords.textContent = `${current}/${words.length}`;
+  if (elCorrect) elCorrect.textContent = correct;
+  if (elMistakes) elMistakes.textContent = wrong;
+  if (elWpm) elWpm.textContent = wpm;
+  // Timer
   let left;
   if (!startTime && !finished) {
     left = 60;
   } else if (typeof startTime === 'number' && !finished) {
     left = Math.max(0, 60 - Math.floor(elapsed));
   }
-  if (!finished) {
-    document.getElementById('timer').textContent = `⏱ ${left}s`;
-  } else {
-    document.getElementById('timer').textContent = '';
+  if (elTimer) {
+    if (!finished) {
+      elTimer.textContent = `${left}s`;
+    } else {
+      elTimer.textContent = '—';
+    }
   }
 }
 
@@ -150,6 +152,7 @@ function nextWordIfCorrect() {
   if (wordTime !== null) {
     statsModule.addWordTime(words[current], wordTime);
   }
+  statsModule.addRecentWord(words[current]);
   current++;
   // Если дошли до конца первой строки — сдвигаем lineOffset
   if ((current - lineOffset) >= wordsPerLine) {
@@ -191,14 +194,35 @@ function startTest() {
   wrong = 0;
   finished = false;
   lineOffset = 0;
-  startTime = null; // теперь стартуем только после первой буквы
+  startTime = null;
+  currentMode = 'random';
+  words = [...allWords];
   document.getElementById('input').disabled = false;
-  // Перемешать слова
   shuffle(words);
   showWord();
   updateStats();
   statsModule.updateStatsDOM();
   // НЕ запускаем таймеры здесь!
+  if (window.timerInterval) clearInterval(window.timerInterval);
+  if (timerId) {
+    clearTimeout(timerId);
+  }
+}
+
+function startWeakTest() {
+  current = 0;
+  correct = 0;
+  wrong = 0;
+  finished = false;
+  lineOffset = 0;
+  startTime = null;
+  currentMode = 'adaptive';
+  words = statsModule.getWeakWords(allWords, 200);
+  document.getElementById('input').disabled = false;
+  shuffle(words);
+  showWord();
+  updateStats();
+  statsModule.updateStatsDOM();
   if (window.timerInterval) clearInterval(window.timerInterval);
   if (timerId) {
     clearTimeout(timerId);

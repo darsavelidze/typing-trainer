@@ -1,41 +1,43 @@
 // main.js — логика тренажёра и отправки статистики
 
-// Переопределяем updateStatsDOM для отправки статистики, если авторизован
 (function() {
-    // userIsAuth определяется в index.html
-    if (window.isUserAuth) {
-        statsModule.updateStatsDOM = function() {
+    // updateStatsDOM: render table + send to server if auth
+    function makeUpdateStatsDOM(sendToServer) {
+        return function() {
             const el = document.getElementById('stats-table');
-            if (el) el.innerHTML = statsModule.renderStatsTable();
-            // Отправить статистику на сервер при каждом обновлении
-            fetch('/save_stats', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stats: JSON.stringify(statsModule.wordStats) })
-            });
-        };
-    } else {
-        statsModule.updateStatsDOM = function() {
-            const el = document.getElementById('stats-table');
-            if (el) el.innerHTML = statsModule.renderStatsTable();
+            if (el) {
+                const tableHTML = statsModule.renderRecentStatsTable(8);
+                if (tableHTML && tableHTML !== '<div>No data</div>') {
+                    el.innerHTML = '<div class="stats-table-header">Word Statistics (recent)</div>' + tableHTML;
+                } else {
+                    el.innerHTML = '';
+                }
+            }
+            if (sendToServer) {
+                fetch('/save_stats', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ stats: JSON.stringify(statsModule.wordStats) })
+                });
+            }
         };
     }
+    statsModule.updateStatsDOM = makeUpdateStatsDOM(!!window.isUserAuth);
 
     // Вставить тренажёр внутрь trainer-app
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('trainer-app').innerHTML = `
-            <div id="stats"></div>
-            <div style="display:flex;align-items:center;justify-content:center;margin:20px 0;width:100%;position:relative;">
-                <div id="word" style="font-size:2em; text-align:center; display:inline-block;"></div>
-                <div id="timer" style="font-size:2em;width:80px;text-align:right;position:absolute;right:10px;"></div>
+            <div id="word-box">
+                <div id="word"></div>
             </div>
-            <input id="input" type="text" autocomplete="off" style="font-size:2em;" />
-            <button onclick="startTest()">Restart</button>
-            <hr style="margin:24px auto; width:80%;">
+            <input id="input" type="text" autocomplete="off" placeholder="Start typing here..." />
+            <div class="btn-row">
+                <button class="btn-restart" onclick="startTest()">↻ Restart</button>
+                <button class="btn-weak" onclick="startWeakTest()">◎ Practice Weak Words</button>
+            </div>
         `;
         const input = document.getElementById('input');
         input.addEventListener('keydown', function(e) {
-            // Запретить ввод пробела, но использовать его для перехода
             if (e.key === ' ' && !e.ctrlKey && !e.altKey && !e.metaKey) {
                 e.preventDefault();
                 nextWordIfCorrect();
